@@ -2,14 +2,12 @@
 
 import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 
 const frontendPlugins = [
-  json(),
   resolve({ extensions: ['.js', '.jsx', '.ts', '.tsx'] }),
   commonjs({
     include: /\/node_modules\//,
@@ -17,7 +15,7 @@ const frontendPlugins = [
   typescript(),
   babel({
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
-    presets: ['@babel/preset-react'],
+    presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
   }),
   terser(),
   replace({
@@ -26,7 +24,6 @@ const frontendPlugins = [
 ];
 
 const backendPlugins = [
-  json(),
   resolve({ extensions: ['.js', '.ts'] }),
   commonjs({
     include: /\/node_modules\//,
@@ -34,6 +31,9 @@ const backendPlugins = [
   typescript(),
   babel({
     extensions: ['.js', '.ts'],
+    presets: [['@babel/preset-env', { targets: { node: 20 } }], '@babel/preset-typescript'],
+    plugins: ['@babel/plugin-transform-runtime'],
+    babelHelpers: 'runtime', // Use runtime mode
   }),
   terser(),
   replace({
