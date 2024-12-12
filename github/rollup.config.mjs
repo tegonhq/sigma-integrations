@@ -31,9 +31,7 @@ const backendPlugins = [
   typescript(),
   babel({
     extensions: ['.js', '.ts'],
-    presets: [['@babel/preset-env', { targets: { node: 20 } }], '@babel/preset-typescript'],
-    plugins: ['@babel/plugin-transform-runtime'],
-    babelHelpers: 'runtime', // Use runtime mode
+    presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
   }),
   terser(),
   replace({
@@ -45,7 +43,7 @@ const backendPlugins = [
 export default [
   {
     input: 'frontend/index.tsx',
-    external: ['react', 'react-dom', 'react-scripts'],
+    external: ['react', 'react-dom', 'react-scripts', '@tegonhq/ui'],
     output: [
       {
         file: 'dist/frontend/index.js',

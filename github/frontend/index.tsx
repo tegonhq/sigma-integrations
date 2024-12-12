@@ -1,1 +1,1 @@
-export * from './preview';
+export * from './task-preview';
