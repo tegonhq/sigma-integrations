@@ -2,11 +2,12 @@
 
 import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
-import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 const frontendPlugins = [
   json(),
@@ -26,16 +27,13 @@ const frontendPlugins = [
 ];
 
 const backendPlugins = [
+  nodePolyfills(),
   json(),
   resolve({ extensions: ['.js', '.ts'] }),
   commonjs({
     include: /\/node_modules\//,
   }),
   typescript(),
-  babel({
-    extensions: ['.js', '.ts'],
-    presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
-  }),
   terser(),
   replace({
     'process.env.NODE_ENV': JSON.stringify('production'),
@@ -54,13 +52,14 @@ export default [
         format: 'cjs',
         exports: 'named',
         preserveModules: false,
+       
       },
     ],
     plugins: frontendPlugins,
   },
   {
     input: 'backend/index.ts',
-    external: ['fs', 'path'],
+    external: ['axios'],
     output: [
       {
         file: 'dist/backend/index.js',
