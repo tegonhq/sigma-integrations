@@ -27,6 +27,5 @@
     "useUnknownInCatchVariables": false
   },
   "exclude": ["node_modules", "build", "dist", "scripts", "acceptance-tests", "webpack", "jest"],
-  "types": ["typePatches"],
-  "include": ["frontend"]
+  "types": ["typePatches"]
 }

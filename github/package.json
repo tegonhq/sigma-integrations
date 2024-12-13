@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "build": "rimraf dist && npm run build:js && npm run copy:spec",
+    "build:watch": "rimraf dist && rollup -c --watch",
     "build:js": "rollup -c",
     "lint": "eslint --ext js,ts,tsx src",
     "prettier": "prettier --config .prettierrc --write .",
