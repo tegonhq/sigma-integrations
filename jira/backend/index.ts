@@ -31,10 +31,10 @@ export interface IntegrationEventPayload {
   [x: string]: any;
 }
 
-export function run(eventPayload: IntegrationEventPayload) {
+export async function run(eventPayload: IntegrationEventPayload) {
   switch (eventPayload.event) {
     case IntegrationPayloadEventType.CREATE:
-      return integrationCreate(
+      return await integrationCreate(
         eventPayload.userId,
         eventPayload.workspaceId,
         eventPayload.eventBody,
