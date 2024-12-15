@@ -1,4 +1,5 @@
 import { integrationCreate } from './account-settings';
+import { syncInitialTasks } from './sync-initial-task';
 import { handle_webhook } from './webhook';
 
 export enum IntegrationPayloadEventType {
@@ -24,12 +25,16 @@ export enum IntegrationPayloadEventType {
 
   // Valid and return the response for webhooks
   WEBHOOK_RESPONSE = 'webhook_response',
+
+  SYNC_INITIAL_TASK = 'sync_initial_task',
 }
 
 export interface IntegrationEventPayload {
   event: IntegrationPayloadEventType;
   [x: string]: any;
 }
+
+export const BACKEND_HOST = 'http://localhost:3001/v1';
 
 export async function run(eventPayload: IntegrationEventPayload) {
   switch (eventPayload.event) {
@@ -41,6 +46,9 @@ export async function run(eventPayload: IntegrationEventPayload) {
       );
     case IntegrationPayloadEventType.WEBHOOK_RESPONSE:
       return handle_webhook(eventPayload.eventBody);
+
+    case IntegrationPayloadEventType.SYNC_INITIAL_TASK:
+      return syncInitialTasks(eventPayload.eventBody);
 
     default:
       return {
