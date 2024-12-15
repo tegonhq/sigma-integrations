@@ -1,4 +1,6 @@
-import { handle_webhook } from './webhook';
+import { integrationCreate } from './account-create';
+import { handleSchedule } from './schedule';
+import { syncInitialTasks } from './sync-initial-task';
 
 export enum IntegrationPayloadEventType {
   /**
@@ -23,17 +25,33 @@ export enum IntegrationPayloadEventType {
 
   // Valid and return the response for webhooks
   WEBHOOK_RESPONSE = 'webhook_response',
+
+  SCHEDULED_TASK = 'scheduled_task',
+
+  SYNC_INITIAL_TASK = 'sync_initial_task',
 }
+
+export const BACKEND_HOST = 'http://localhost:3001/v1';
 
 export interface IntegrationEventPayload {
   event: IntegrationPayloadEventType;
   [x: string]: any;
 }
 
-export function run(eventPayload: IntegrationEventPayload) {
+export async function run(eventPayload: IntegrationEventPayload) {
   switch (eventPayload.event) {
-    case IntegrationPayloadEventType.WEBHOOK_RESPONSE:
-      return handle_webhook(eventPayload.eventBody);
+    case IntegrationPayloadEventType.CREATE:
+      return await integrationCreate(
+        eventPayload.userId,
+        eventPayload.workspaceId,
+        eventPayload.eventBody,
+      );
+
+    case IntegrationPayloadEventType.SCHEDULED_TASK:
+      return handleSchedule(eventPayload.eventBody);
+
+    case IntegrationPayloadEventType.SYNC_INITIAL_TASK:
+      return syncInitialTasks(eventPayload.eventBody);
 
     default:
       return {
