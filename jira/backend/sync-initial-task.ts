@@ -1,4 +1,4 @@
-import { createActivities, createTasks, getAccessToken, postJira } from './utils';
+import { createActivities, createTasks, getAccessToken, getState, postJira } from './utils';
 
 export async function syncInitialTasks(eventBody: any) {
   const { integrationAccount } = eventBody;
@@ -42,7 +42,7 @@ export async function syncInitialTasks(eventBody: any) {
     response.issues.forEach((issue: any) => {
       const url = issue.self;
       const title = `${issue.key} - ${issue.fields.summary}`;
-      const status = issue.fields.status.name;
+      const status = getState(issue.fields.status);
       const sourceId = issue.id;
 
       tasks.push({

@@ -1,42 +1,83 @@
+import { createActivities, createTasks, deleteTask, getState } from './utils';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function handle_webhook(eventBody: any) {
-  if (eventBody.type === 'url_verification') {
-    return { challenge: eventBody.challenge };
-  }
-
+export async function handleWebhook(eventBody: any) {
   // Determine activity type and name based on GitHub event
-  let activityType = 'github_event';
-  let activityName = 'GitHub Event';
-  let sourceId = '';
-  let status = '';
-  let title = '';
-  let url = '';
+  const { eventData, integrationAccount } = eventBody;
+  let activityType = 'jira_event';
+  let activityName = 'Jira Event';
+  let url: string = '';
+  let hasTask: boolean = false;
+  let sourceId: string = '';
+  let status = 'Todo';
+  let title: string = '';
+  let activityData: Record<string, any> = {};
 
-  if (eventBody.pull_request) {
-    activityType = `github_pull_request_${eventBody.action}`;
-    activityName = `PR ${eventBody.action}: ${eventBody.pull_request.title}`;
-    sourceId = eventBody.pull_request.id.toString();
-    url = eventBody.pull_request.html_url;
-    status = eventBody.pull_request.merged ? 'Todo' : 'Done';
-    title = `#${eventBody.pull_request.number} - ${eventBody.pull_request.title}`;
-  } else if (eventBody.issue) {
-    activityType = `github_issue_${eventBody.action}`;
-    activityName = `Issue ${eventBody.action}: ${eventBody.issue.title}`;
-    sourceId = eventBody.issue.id.toString();
-    url = eventBody.issue.html_url;
-    status = eventBody.issue.state === 'open' ? 'Todo' : 'Done';
-    title = `#${eventBody.issue.number} - ${eventBody.issue.title}`;
+  switch (eventData.webhookEvent) {
+    case 'jira:issue_created':
+    case 'jira:issue_updated':
+    case 'jira:issue_deleted':
+      hasTask = true;
+      url = eventData.issue.self;
+      title = `${eventData.issue.key} - ${eventData.issue.fields.summary}`;
+      status = getState(eventData.issue.fields.status);
+      sourceId = eventData.issue.id;
+      activityType = `jira_${eventData.webhookEvent.split(':')[1]}`;
+      activityName = `Jira Issue ${eventData.webhookEvent.split(':')[1].split('_')[1]}`;
+      activityData = eventData;
+      if (activityType === 'jira_issue_deleted') {
+        hasTask = false;
+        await deleteTask(url, integrationAccount.workspaceId);
+      }
+      break;
+
+    case 'comment_created':
+    case 'comment_updated':
+    case 'comment_deleted':
+      activityName = `Jira Issue Comment ${eventData.webhookEvent.split('_')[1]}`;
+      activityType = `jira_issue_comment_${eventData.webhookEvent.split('_')[1]}`;
+      activityData = {
+        comment: {
+          self: eventData.comment.self,
+          id: eventData.comment.id,
+          author: {
+            self: eventData.comment.author.self,
+            accountId: eventData.comment.author.accountId,
+            displayName: eventData.comment.author.displayName,
+          },
+          body: eventData.comment.body,
+          created: eventData.comment.created,
+          updated: eventData.comment.updated,
+        },
+        issue: {
+          self: eventData.issue.self,
+          id: eventData.issue.id,
+          key: eventData.issue.key,
+        },
+      };
+      break;
   }
 
-  const accountId = eventBody.installation.id.toString();
+  const activities = await createActivities(
+    [
+      {
+        type: activityType,
+        name: activityName,
+        eventData: activityData,
+        integrationAccountId: integrationAccount.id,
+      },
+    ],
+    integrationAccount.workspaceId,
+  );
 
-  const activity = {
-    type: activityType,
-    name: activityName,
-    eventData: eventBody,
-  };
+  let tasks;
+  if (hasTask) {
+    tasks = await createTasks(
+      [{ url, title, status, sourceId, integrationAccountId: integrationAccount.id }],
+      integrationAccount.workspaceId,
+    );
+  }
 
-  const task = { sourceId, url, status, title };
-
-  return { accountId, activity, task };
+  console.log(activities, tasks);
+  return { activities, tasks };
 }

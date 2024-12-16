@@ -142,3 +142,23 @@ export async function createTasks(tasks: any, workspaceId: string) {
 
   return results;
 }
+
+export async function deleteTask(url: string, workspaceId: string) {
+  return (await axios.delete(`${BACKEND_HOST}/task/url?workspaceId=${workspaceId}&url=${url}`))
+    .data;
+}
+
+export function getState(status: Record<string, any>) {
+  const categoryKey = status.statusCategory?.key;
+
+  switch (categoryKey) {
+    case 'new':
+      return 'Todo';
+    case 'indeterminate':
+      return 'In Progress';
+    case 'done':
+      return 'Done';
+    default:
+      return 'Todo'; // Default to Todo if status category is unknown
+  }
+}
