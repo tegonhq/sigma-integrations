@@ -9,11 +9,12 @@
     "build": "rimraf dist && npm run build:js && npm run copy:spec",
     "build:watch": "rimraf dist && rollup -c --watch",
     "build:js": "rollup -c",
-    "lint": "eslint --ext js,ts,tsx src",
+    "lint": "eslint --ext js,ts,tsx backend/ frontend/ --fix",
     "prettier": "prettier --config .prettierrc --write .",
     "copy:spec": "cp spec.json dist/"
   },
   "peerDependencies": {
+    "@tegonhq/ui": "^0.2.20",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -66,7 +67,8 @@
     ]
   },
   "dependencies": {
-    "@tegonhq/ui": "^0.2.15",
-    "axios": "^1.7.9"
+    "axios": "^1.7.9",
+    "react-query": "^3.39.3",
+    "@tegonhq/sigma-sdk": "0.1.0"
   }
 }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { BACKEND_HOST } from '.';
+import { BACKEND_HOST } from './constants';
 
 export async function createActivity(
   activityName: string,

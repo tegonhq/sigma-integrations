@@ -1,13 +1,14 @@
-import { cn } from '@tegonhq/ui';
-import React from 'react';
+import { updateTask } from '@tegonhq/sigma-sdk';
+import { cn, StatusDropdown, StatusDropdownVariant, TaskItemProps } from '@tegonhq/ui';
 
-interface TaskItemProps {
-  statusNode: React.ReactNode;
-  task: any;
-  page: any;
-}
+export const TaskItem = ({ task, page }: TaskItemProps) => {
+  const statusChange = (status: string) => {
+    updateTask({
+      taskId: task.id,
+      status,
+    });
+  };
 
-export const TaskItem = ({ statusNode, page }: TaskItemProps) => {
   return (
     <div className="pl-1 pr-2 flex group cursor-default gap-2">
       <div className="w-full flex items-center">
@@ -16,7 +17,13 @@ export const TaskItem = ({ statusNode, page }: TaskItemProps) => {
             'flex grow items-start gap-2 pl-2 ml-1 pr-2 group-hover:bg-grayAlpha-100 rounded-xl shrink min-w-[0px]',
           )}
         >
-          <div className="pt-2.5 shrink-0">{statusNode}</div>
+          <div className="pt-2.5 shrink-0">
+            <StatusDropdown
+              value={task.status}
+              onChange={statusChange}
+              variant={StatusDropdownVariant.NO_BACKGROUND}
+            />
+          </div>
 
           <div
             className={cn('flex flex-col w-full py-2.5 border-b border-border shrink min-w-[0px]')}

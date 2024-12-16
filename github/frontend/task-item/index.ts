@@ -1,1 +1,1 @@
-export * from './task-item-preview';
+export * from './task-item';

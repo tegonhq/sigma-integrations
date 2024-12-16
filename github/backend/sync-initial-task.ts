@@ -1,8 +1,7 @@
 import axios from 'axios';
 
+import { BACKEND_HOST } from './constants';
 import { createActivities, createTasks, getGithubData } from './utils';
-
-import { BACKEND_HOST } from '.';
 
 export async function syncInitialTasks(eventBody: any) {
   const { integrationAccount } = eventBody;

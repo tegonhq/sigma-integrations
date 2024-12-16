@@ -1,8 +1,7 @@
 import axios from 'axios';
 
+import { BACKEND_HOST } from './constants';
 import { createActivities, createTasks, getGithubData } from './utils';
-
-import { BACKEND_HOST } from '.';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleSchedule(eventBody: any) {

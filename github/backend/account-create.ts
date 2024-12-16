@@ -1,8 +1,7 @@
 import axios from 'axios';
 
+import { BACKEND_HOST } from './constants';
 import { getGithubData } from './utils';
-
-import { BACKEND_HOST } from '.';
 
 export async function integrationCreate(
   userId: string,

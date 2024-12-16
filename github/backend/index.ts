@@ -31,8 +31,6 @@ export enum IntegrationPayloadEventType {
   SYNC_INITIAL_TASK = 'sync_initial_task',
 }
 
-export const BACKEND_HOST = 'http://localhost:3001/v1';
-
 export interface IntegrationEventPayload {
   event: IntegrationPayloadEventType;
   [x: string]: any;

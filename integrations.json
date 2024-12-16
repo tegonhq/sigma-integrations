@@ -1,0 +1,10 @@
+[ {
+    "name": "Github",
+    "version": "0.1.0",
+    "url": "https://raw.githubusercontent.com/tegonhq/sigma-integrations/main/compiled/github/0.1.0"
+  },
+  {
+    "name": "Jira",
+    "version": "0.1.0",
+    "url": "https://raw.githubusercontent.com/tegonhq/sigma-integrations/main/compiled/jira/0.1.0"
+  } ]

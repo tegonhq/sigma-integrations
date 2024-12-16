@@ -1,1 +1,2 @@
-export * from './task-preview';
+export * from './task-item';
+export * from './task-view';
