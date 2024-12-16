@@ -18,7 +18,8 @@
       "read:jira-user",
       "write:jira-work",
       "manage:jira-webhook",
-      "read:user:jira"
+      "read:user:jira",
+      "read:me"
     ]
   }
 }

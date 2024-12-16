@@ -1,4 +1,6 @@
-import { createActivities, createTasks, deleteTask, getState } from './utils';
+import axios from 'axios';
+
+import { createActivities, createTasks, deleteTask, getAccessToken, getState } from './utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleWebhook(eventBody: any) {
@@ -78,6 +80,16 @@ export async function handleWebhook(eventBody: any) {
     );
   }
 
-  console.log(activities, tasks);
+  const settings = integrationAccount.settings;
+
+  const accessToken = await getAccessToken(integrationAccount);
+  await axios.put(
+    `https://api.atlassian.com/ex/jira/${settings.cloudId}/rest/api/3/webhook/refresh`,
+    {
+      webhookIds: [settings.webhookId],
+    },
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+
   return { activities, tasks };
 }
