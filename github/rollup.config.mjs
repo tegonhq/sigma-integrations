@@ -6,10 +6,15 @@ import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
+import postcss from 'rollup-plugin-postcss';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 
 const frontendPlugins = [
+  postcss({
+    inject: true, // Inject CSS as JS, making it part of the bundle
+    minimize: true, // Minify CSS
+  }),
   json(),
   resolve({ extensions: ['.js', '.jsx', '.ts', '.tsx'] }),
   commonjs({
@@ -44,7 +49,7 @@ const backendPlugins = [
 export default [
   {
     input: 'frontend/index.tsx',
-    external: ['react', 'react-dom', 'react-scripts', '@tegonhq/ui'],
+    external: ['react', 'react-dom', '@tegonhq/ui', 'axios', 'react-query'],
     output: [
       {
         file: 'dist/frontend/index.js',
@@ -52,6 +57,7 @@ export default [
         format: 'cjs',
         exports: 'named',
         preserveModules: false,
+        inlineDynamicImports: true,
       },
     ],
     plugins: frontendPlugins,

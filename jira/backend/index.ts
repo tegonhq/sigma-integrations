@@ -1,5 +1,6 @@
 import { integrationCreate } from './account-settings';
 import { syncInitialTasks } from './sync-initial-task';
+import { getAccessToken } from './utils';
 import { handleWebhook } from './webhook';
 
 export enum IntegrationPayloadEventType {
@@ -46,6 +47,9 @@ export async function run(eventPayload: IntegrationEventPayload) {
       );
     case IntegrationPayloadEventType.WEBHOOK_RESPONSE:
       return handleWebhook(eventPayload.eventBody);
+
+    case IntegrationPayloadEventType.GET_TOKEN:
+      return getAccessToken(eventPayload.eventBody.integrationAccount);
 
     case IntegrationPayloadEventType.SYNC_INITIAL_TASK:
       return syncInitialTasks(eventPayload.eventBody);

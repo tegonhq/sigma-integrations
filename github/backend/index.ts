@@ -8,8 +8,6 @@ export enum IntegrationPayloadEventType {
    */
   GET_CONNECTED_ACCOUNT_ID = 'get_connected_account_id',
 
-  SPEC = 'spec',
-
   /**
    * This is used to create/delete a integration account from the
    * user input
@@ -17,14 +15,8 @@ export enum IntegrationPayloadEventType {
   CREATE = 'create',
   DELETE = 'delete',
 
-  // When the extension gets a external webhook
-  SOURCE_WEBHOOK = 'source_webhook',
-
   // Get a fresh token for the integration
   GET_TOKEN = 'get_token',
-
-  // Valid and return the response for webhooks
-  WEBHOOK_RESPONSE = 'webhook_response',
 
   SCHEDULED_TASK = 'scheduled_task',
 
@@ -47,6 +39,9 @@ export async function run(eventPayload: IntegrationEventPayload) {
 
     case IntegrationPayloadEventType.SCHEDULED_TASK:
       return handleSchedule(eventPayload.eventBody);
+
+    case IntegrationPayloadEventType.GET_TOKEN:
+      return eventPayload.eventBody.integrationAccount.integrationConfiguration.access_token;
 
     case IntegrationPayloadEventType.SYNC_INITIAL_TASK:
       return syncInitialTasks(eventPayload.eventBody);
