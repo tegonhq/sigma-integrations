@@ -5,7 +5,10 @@ import { createActivities, createTasks, deleteTask, getAccessToken, getState } f
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleWebhook(eventBody: any) {
   // Determine activity type and name based on GitHub event
-  const { eventData, integrationAccount } = eventBody;
+  const {
+    eventData: { eventBody: jiraData },
+    integrationAccount,
+  } = eventBody;
   let activityType = 'jira_event';
   let activityName = 'Jira Event';
   let url: string = '';
@@ -15,18 +18,18 @@ export async function handleWebhook(eventBody: any) {
   let title: string = '';
   let activityData: Record<string, any> = {};
 
-  switch (eventData.webhookEvent) {
+  switch (jiraData.webhookEvent) {
     case 'jira:issue_created':
     case 'jira:issue_updated':
     case 'jira:issue_deleted':
       hasTask = true;
-      url = eventData.issue.self;
-      title = `${eventData.issue.key} - ${eventData.issue.fields.summary}`;
-      status = getState(eventData.issue.fields.status);
-      sourceId = eventData.issue.id;
-      activityType = `jira_${eventData.webhookEvent.split(':')[1]}`;
-      activityName = `Jira Issue ${eventData.webhookEvent.split(':')[1].split('_')[1]}`;
-      activityData = eventData;
+      url = jiraData.issue.self;
+      title = `${jiraData.issue.key} - ${jiraData.issue.fields.summary}`;
+      status = getState(jiraData.issue.fields.status);
+      sourceId = jiraData.issue.id;
+      activityType = `jira_${jiraData.webhookEvent.split(':')[1]}`;
+      activityName = `Jira Issue ${jiraData.webhookEvent.split(':')[1].split('_')[1]}`;
+      activityData = jiraData;
       if (activityType === 'jira_issue_deleted') {
         hasTask = false;
         await deleteTask(url, integrationAccount.workspaceId);
@@ -36,25 +39,25 @@ export async function handleWebhook(eventBody: any) {
     case 'comment_created':
     case 'comment_updated':
     case 'comment_deleted':
-      activityName = `Jira Issue Comment ${eventData.webhookEvent.split('_')[1]}`;
-      activityType = `jira_issue_comment_${eventData.webhookEvent.split('_')[1]}`;
+      activityName = `Jira Issue Comment ${jiraData.webhookEvent.split('_')[1]}`;
+      activityType = `jira_issue_comment_${jiraData.webhookEvent.split('_')[1]}`;
       activityData = {
         comment: {
-          self: eventData.comment.self,
-          id: eventData.comment.id,
+          self: jiraData.comment.self,
+          id: jiraData.comment.id,
           author: {
-            self: eventData.comment.author.self,
-            accountId: eventData.comment.author.accountId,
-            displayName: eventData.comment.author.displayName,
+            self: jiraData.comment.author.self,
+            accountId: jiraData.comment.author.accountId,
+            displayName: jiraData.comment.author.displayName,
           },
-          body: eventData.comment.body,
-          created: eventData.comment.created,
-          updated: eventData.comment.updated,
+          body: jiraData.comment.body,
+          created: jiraData.comment.created,
+          updated: jiraData.comment.updated,
         },
         issue: {
-          self: eventData.issue.self,
-          id: eventData.issue.id,
-          key: eventData.issue.key,
+          self: jiraData.issue.self,
+          id: jiraData.issue.id,
+          key: jiraData.issue.key,
         },
       };
       break;
