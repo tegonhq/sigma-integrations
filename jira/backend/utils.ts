@@ -38,8 +38,6 @@ export async function getAccessToken(integrationAccount: any) {
     const { clientId: client_id, clientSecret: client_secret } =
       integrationAccount.integrationDefinition.config;
 
-    console.log(client_id, client_secret, refresh_token);
-
     const url = 'https://auth.atlassian.com/oauth/token';
 
     // Send a POST request to refresh the access token

@@ -3,13 +3,9 @@ import { createActivities, createTasks, getAccessToken, getState, postJira } fro
 export async function syncInitialTasks(eventBody: any) {
   const { integrationAccount } = eventBody;
 
-  console.log(integrationAccount);
-
   const accessToken = await getAccessToken(integrationAccount);
 
   const settings = integrationAccount.settings;
-
-  console.log(accessToken, settings);
 
   const tasks: any = [];
   const activities: any = [];
