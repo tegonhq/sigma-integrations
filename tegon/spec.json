@@ -1,0 +1,14 @@
+{
+  "name": "Tegon extension",
+  "key": "tegon",
+  "description": "Tegon is a project management tool that helps teams stay organized and collaborate effectively by syncing issues and comments to tasks.",
+  "icon": "tegon",
+  "scheduled": "true",
+  "auth": {
+    "APIKey": {
+      "type": "API Key",
+      "header_name": "Authorization",
+      "format": "Bearer {api_key}"
+    }
+  }
+}

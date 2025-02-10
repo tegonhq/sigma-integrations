@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { createActivities, getAccessToken, handleEvent, updateOrDeleteTask } from './utils';
+import { getAccessToken, handleEvent, updateOrDeleteTask } from './utils';
 
 export async function handleWebhook(eventBody: any) {
   const {
@@ -31,24 +31,15 @@ export async function handleWebhook(eventBody: any) {
   );
 
   if (calendarEventData && calendarEventData.items) {
-    const activities = [];
     for (const event of calendarEventData.items) {
       if (event.status === 'cancelled') {
         await updateOrDeleteTask(event, true);
       } else if (event.id.includes('_')) {
         await updateOrDeleteTask(event, false);
       } else {
-        const activity = await handleEvent(
-          event,
-          integrationAccount.id,
-          calendarId,
-          calendarEventData.summary,
-        );
-        activities.push(activity);
+        await handleEvent(event, integrationAccount.id, calendarId, calendarEventData.summary);
       }
     }
-
-    await createActivities(activities);
   }
   return { success: true };
 }

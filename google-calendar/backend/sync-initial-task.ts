@@ -1,22 +1,25 @@
 import axios from 'axios';
 
-import { createActivities, createTasks, getAccessToken, handleEvent } from './utils';
+import { createTasks, getAccessToken, getTaskData } from './utils';
 
 export async function syncInitialTasks(eventBody: any) {
   const { integrationAccount } = eventBody;
+  console.log(`integrationAccount: ${integrationAccount.id}`);
   const accessToken = await getAccessToken(integrationAccount);
+  console.log(accessToken);
   const settings = integrationAccount.settings;
 
   const tasks: any = [];
-  const activities: any = [];
 
   // Get events from today onwards
   const startTime = new Date();
   startTime.setHours(0, 0, 0, 0);
 
+  console.log(settings);
   // Process each calendar from settings
   for (const calendar of settings.calendars) {
     // Skip calendars where user only has "freeBusyReader" access, birthdays or holidays
+    console.log(calendar);
     if (
       calendar.accessRole === 'freeBusyReader' ||
       calendar.summary === 'Birthdays' ||
@@ -50,16 +53,11 @@ export async function syncInitialTasks(eventBody: any) {
         break;
       }
 
+      console.log(response);
       response.items.forEach(async (event: any) => {
-        const activity = await handleEvent(
-          event,
-          integrationAccount.id,
-          calendar.id,
-          calendar.summary,
-        );
+        const taskData = getTaskData(event, integrationAccount.id, calendar.id, calendar.summary);
 
-        // Create activity
-        activities.push(activity);
+        tasks.push(taskData);
       });
 
       pageToken = response.nextPageToken;
@@ -67,9 +65,8 @@ export async function syncInitialTasks(eventBody: any) {
     }
   }
 
-  if (activities.length > 0) {
-    await createActivities(activities);
-  }
+  console.log(tasks);
+
   if (tasks.length > 0) {
     await createTasks(tasks);
   }

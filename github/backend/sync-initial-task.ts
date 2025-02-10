@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { BACKEND_HOST } from './constants';
-import { createActivities, createTasks, getGithubData } from './utils';
+import { createTasks, getGithubData } from './utils';
 
 export async function syncInitialTasks(eventBody: any) {
   const { integrationAccount } = eventBody;
@@ -15,7 +15,6 @@ export async function syncInitialTasks(eventBody: any) {
   ];
 
   const tasks: any = [];
-  const activities: any = [];
 
   await Promise.all(
     queries.map(async (query: string) => {
@@ -51,20 +50,33 @@ export async function syncInitialTasks(eventBody: any) {
             status,
             sourceId,
             integrationAccountId: integrationAccount.id,
-          });
-          activities.push({
-            type: activityType,
-            eventData: {
-              id: item.id,
-              url: item.url,
-              comment_url: item.comment_url,
-              html_url: item.html_url,
-              number: item.number,
-              title: item.title,
+            metadata: {
+              type: 'NORMAL',
               state: item.state,
+              number: item.number,
+              htmlUrl: item.html_url,
+              commentUrl: item.comment_url,
+              repository: item.repository_url,
+              assignees: item.assignees,
+              labels: item.labels,
+              createdAt: item.created_at,
+              updatedAt: item.updated_at,
+              closedAt: item.closed_at,
             },
-            name: activityName,
-            integrationAccountId: integrationAccount.id,
+            activity: {
+              type: activityType,
+              eventData: {
+                id: item.id,
+                url: item.url,
+                comment_url: item.comment_url,
+                html_url: item.html_url,
+                number: item.number,
+                title: item.title,
+                state: item.state,
+              },
+              name: activityName,
+              integrationAccountId: integrationAccount.id,
+            },
           });
 
           return true;
@@ -74,9 +86,6 @@ export async function syncInitialTasks(eventBody: any) {
     }),
   );
 
-  if (activities.length > 0) {
-    await createActivities(activities, integrationAccount.workspaceId);
-  }
   if (tasks.length > 0) {
     await createTasks(tasks, integrationAccount.workspaceId);
   }

@@ -24,11 +24,13 @@ export async function postGoogleCalendarData(url: string, accessToken: string, d
 export async function getAccessToken(integrationAccount: any) {
   // Get the integration configuration as a Record<string, string>
   const config = integrationAccount.integrationConfiguration as Record<string, string>;
+  console.log(config);
 
   // Get the current timestamp
   const currentDate = Date.now();
   // Get the access token expiration timestamp
   const accessExpiresIn = Number(config.access_expires_in);
+  console.log(accessExpiresIn);
 
   // If the access token is expired or not set
   if (!accessExpiresIn || currentDate >= accessExpiresIn) {
@@ -88,37 +90,6 @@ export async function createTasks(tasks: any) {
     const responses = await Promise.all(
       batches.map((batch, index) =>
         axios.post(`${BACKEND_HOST}/tasks/bulk`, batch).catch((error) => {
-          console.error(`Error processing batch ${index + 1}:`, error);
-          return { data: [] }; // Return empty data on error to continue processing
-        }),
-      ),
-    );
-
-    // Combine all results
-    results.push(...responses.flatMap((response) => response.data));
-  } catch (error) {
-    console.error('Fatal error processing batches');
-    // throw error; // Throw fatal errors
-  }
-
-  return results;
-}
-
-export async function createActivities(activities: any) {
-  const batchSize = 10; // Increased batch size for better efficiency
-  const results = [];
-  const batches = [];
-
-  // Split activities into batches first
-  for (let i = 0; i < activities.length; i += batchSize) {
-    batches.push(activities.slice(i, i + batchSize));
-  }
-
-  // Process all batches concurrently with Promise.all
-  try {
-    const responses = await Promise.all(
-      batches.map((batch, index) =>
-        axios.post(`${BACKEND_HOST}/activity/bulk`, batch).catch((error) => {
           console.error(`Error processing batch ${index + 1}:`, error);
           return { data: [] }; // Return empty data on error to continue processing
         }),
@@ -244,57 +215,61 @@ export async function handleEvent(
   const task = await getTaskBySource(event.id);
 
   if (task) {
-    await updateOrDeleteTask(event, false);
-  } else {
-    const task = {
-      url: event.htmlLink,
-      title: event.summary,
-      status: 'Todo',
-      sourceId: event.id,
-      integrationAccountId,
-      recurrence: event.recurrence,
+    return await updateOrDeleteTask(event, false);
+  }
+  const taskData = getTaskData(event, integrationAccountId, calendarId, calendarName);
+  return await axios.post(`${BACKEND_HOST}/tasks`, taskData);
+}
+
+export function getTaskData(
+  event: any,
+  integrationAccountId: string,
+  calendarId: string,
+  calendarName: string,
+) {
+  return {
+    url: event.htmlLink,
+    title: event.summary,
+    status: 'Todo',
+    sourceId: event.id,
+    integrationAccountId,
+    recurrence: event.recurrence,
+    startTime: event.start.dateTime || event.start.date,
+    endTime: event.end.dateTime || event.end.date,
+    metadata: {
+      type: event.recurrence ? 'SCHEDULED' : 'NORMAL',
+      isRecurring: !!event.recurrence,
       startTime: event.start.dateTime || event.start.date,
       endTime: event.end.dateTime || event.end.date,
-      metadata: {
-        type: event.recurrence ? 'SCHEDULED' : 'NORMAL',
-        isRecurring: !!event.recurrence,
-        startTime: event.start.dateTime || event.start.date,
-        endTime: event.end.dateTime || event.end.date,
-        timeZone: event.start.timeZone,
-        recurrence: event.recurrence,
-        recurringEventId: event.recurringEventId,
-        calendarId,
-        calendarName,
-      },
-    };
-
-    await axios.post(`${BACKEND_HOST}/tasks`, task);
-  }
-
-  const activity = {
-    type: 'google_calendar_event',
-    eventData: {
-      id: event.id,
-      status: event.status,
-      htmlLink: event.htmlLink,
-      created: event.created,
-      updated: event.updated,
-      summary: event.summary,
-      description: event.description,
-      location: event.location,
-      creator: event.creator,
-      organizer: event.organizer,
-      start: event.start,
-      end: event.end,
+      timeZone: event.start.timeZone,
       recurrence: event.recurrence,
       recurringEventId: event.recurringEventId,
-      attendees: event.attendees,
       calendarId,
       calendarName,
     },
-    name: event.summary,
-    integrationAccountId,
+    activity: {
+      type: 'google_calendar_event',
+      eventData: {
+        id: event.id,
+        status: event.status,
+        htmlLink: event.htmlLink,
+        created: event.created,
+        updated: event.updated,
+        summary: event.summary,
+        description: event.description,
+        location: event.location,
+        creator: event.creator,
+        organizer: event.organizer,
+        start: event.start,
+        end: event.end,
+        recurrence: event.recurrence,
+        recurringEventId: event.recurringEventId,
+        attendees: event.attendees,
+        calendarId,
+        calendarName,
+      },
+      name: event.summary,
+      integrationAccountId,
+    },
   };
-
-  return activity;
 }

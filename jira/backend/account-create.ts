@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+import { syncInitialTasks } from './sync-initial-task';
 import { getJiraData, postJira } from './utils';
 
 import { BACKEND_HOST } from '.';
@@ -32,11 +33,31 @@ export async function integrationCreate(
 
   const accountId = currentUser.accountId;
 
+  let settings: Record<string, any> = {
+    name: site.name,
+    url: site.url,
+    avatarUrl: site.avatarUrl,
+    scopes: site.scopes,
+    cloudId,
+  };
+
+  const payload = {
+    settings,
+    userId,
+    accountId,
+    config: integrationConfiguration,
+    workspaceId,
+    integrationDefinitionId: integrationDefinition.id,
+  };
+
+  const integrationAccount = (await axios.post(`${BACKEND_HOST}/integration_account`, payload))
+    .data;
+
   const webhookData = await postJira(
     `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/webhook`,
     integrationConfiguration.access_token,
     {
-      url: `https://115d-106-215-173-196.ngrok-free.app/v1/webhook/jira/${accountId}`,
+      url: `https://115d-106-215-173-196.ngrok-free.app/v1/webhook/jira/${integrationAccount.id}`,
       webhooks: [
         {
           events: [
@@ -53,26 +74,14 @@ export async function integrationCreate(
     },
   );
 
-  const settings = {
-    name: site.name,
-    url: site.url,
-    avatarUrl: site.avatarUrl,
-    scopes: site.scopes,
-    cloudId,
+  settings = {
+    ...settings,
     webhookId: webhookData.webhookRegistrationResult[0].createdWebhookId,
   };
 
-  const payload = {
-    settings,
-    userId,
-    accountId,
-    config: integrationConfiguration,
-    workspaceId,
-    integrationDefinitionId: integrationDefinition.id,
-  };
+  await syncInitialTasks({ integrationAccount });
 
-  const integrationAccount = (await axios.post(`${BACKEND_HOST}/integration_account`, payload))
-    .data;
-
-  return integrationAccount;
+  return (
+    await axios.post(`${BACKEND_HOST}/integration_account/${integrationAccount.id}`, { settings })
+  ).data;
 }

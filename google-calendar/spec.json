@@ -4,18 +4,20 @@
   "description": "Seamlessly integrate your Google Calendar events and meetings. Stay organized, track your schedule, and never miss an important event.",
   "icon": "Calendar",
   "scheduled": "true",
-  "OAuth2": {
-    "token_url": "https://oauth2.googleapis.com/token",
-    "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
-    "scopes": [
-      "https://www.googleapis.com/auth/calendar.events",
-      "https://www.googleapis.com/auth/calendar.readonly"
-    ],
-    "authorization_params": {
-      "response_type": "code",
-      "access_type": "offline",
-      "prompt": "consent"
-    },
-    "scope_separator": " "
+  "auth": {
+    "OAuth2": {
+      "token_url": "https://oauth2.googleapis.com/token",
+      "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar.events",
+        "https://www.googleapis.com/auth/calendar.readonly"
+      ],
+      "authorization_params": {
+        "response_type": "code",
+        "access_type": "offline",
+        "prompt": "consent"
+      },
+      "scope_separator": " "
+    }
   }
 }
