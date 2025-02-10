@@ -1,4 +1,3 @@
-import { ModelNameEnum } from '@tegonhq/sdk';
 import axios from 'axios';
 
 import { BACKEND_HOST } from './constants';
@@ -11,10 +10,10 @@ export async function handleWebhook(eventBody: any) {
   } = eventBody;
 
   switch (tegonData.type) {
-    case ModelNameEnum.Issue:
+    case 'Issue':
       return await handleIssue(tegonData, integrationAccount.id);
 
-    case ModelNameEnum.IssueComment:
+    case 'IssueComment':
       return await handleIssueComment(tegonData, integrationAccount.id);
 
     default:

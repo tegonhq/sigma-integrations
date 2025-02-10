@@ -1,4 +1,3 @@
-import { FilterTypeEnum } from '@tegonhq/sdk';
 import axios from 'axios';
 
 import { createTasks, getAccessToken, getState, setupAxiosInterceptors } from './utils';
@@ -48,7 +47,7 @@ export async function syncInitialTasks(eventBody: any) {
       workspaceId: settings.workspaceId,
       filters: {
         assignee: {
-          filterType: FilterTypeEnum.IS as any,
+          filterType: 'IS',
           value: integrationAccount.accountId,
         },
       },

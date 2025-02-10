@@ -69,7 +69,6 @@
   },
   "dependencies": {
     "@rehype-pretty/transformers": "^0.13.2",
-    "@tegonhq/sdk": "^0.1.13",
     "axios": "^1.7.9",
     "react-query": "^3.39.3",
     "rehype-autolink-headings": "^7.1.0",
