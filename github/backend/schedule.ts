@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { BACKEND_HOST } from './constants';
-import { createActivities, createTasks, getGithubData } from './utils';
+import { createTasks, getGithubData } from './utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleSchedule(eventBody: any) {
@@ -50,7 +50,6 @@ export async function handleSchedule(eventBody: any) {
     notificationCount += filteredNotifications?.length || 0;
 
     const tasks: any = [];
-    const activities: any = [];
 
     await Promise.all(
       filteredNotifications.map(async (notification: any) => {
@@ -161,21 +160,18 @@ export async function handleSchedule(eventBody: any) {
               status,
               sourceId,
               integrationAccountId: integrationAccount.id,
+              activity: {
+                type: activityType,
+                eventData: notification,
+                name: activityName,
+                integrationAccountId: integrationAccount.id,
+              },
             });
           }
-          activities.push({
-            type: activityType,
-            eventData: notification,
-            name: activityName,
-            integrationAccountId: integrationAccount.id,
-          });
         }
       }),
     );
 
-    if (activities.length > 0) {
-      await createActivities(activities, integrationAccount.workspaceId);
-    }
     if (tasks.length > 0) {
       await createTasks(tasks, integrationAccount.workspaceId);
     }

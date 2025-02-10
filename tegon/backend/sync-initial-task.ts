@@ -1,15 +1,18 @@
 import axios from 'axios';
 
-import { createTasks, getAccessToken, getState, setupAxiosInterceptors } from './utils';
+import { TEGON_HOST } from './constants';
+import { createTasks, getAccessToken, getState } from './utils';
 
 export async function syncInitialTasks(eventBody: any) {
   const { integrationAccount } = eventBody;
   const accessToken = await getAccessToken(integrationAccount);
   const settings = integrationAccount.settings;
 
-  setupAxiosInterceptors(accessToken);
-
-  const teams = (await axios.get(`/api/v1/team/user`)).data;
+  const teams = (
+    await axios.get(`${TEGON_HOST}/api/v1/teams/user`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+  ).data;
 
   const teamsByTeam: Record<string, any> = {};
   for (const team of teams) {
@@ -18,7 +21,12 @@ export async function syncInitialTasks(eventBody: any) {
 
   const workflowsByTeam: Record<string, any> = {};
   for (const team of teams) {
-    const workflows = (await axios.get(`/api/v1/${team.id}/workflow`)).data;
+    const workflows = (
+      await axios.get(`${TEGON_HOST}/api/v1/${team.id}/workflows`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+    ).data;
+
     for (const workflow of workflows) {
       workflowsByTeam[workflow.id] = workflow;
     }
@@ -27,7 +35,8 @@ export async function syncInitialTasks(eventBody: any) {
   const labelsByTeam: Record<string, any> = {};
   for (const team of teams) {
     const labels = (
-      await axios.get(`/api/v1/label`, {
+      await axios.get(`${TEGON_HOST}/api/v1/labels`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
         params: {
           workspaceId: settings.workspaceId,
           teamId: team.id,
@@ -40,18 +49,26 @@ export async function syncInitialTasks(eventBody: any) {
     }
   }
 
-  const currentUser = (await axios.get('/api/v1/users')).data;
+  const currentUser = (
+    await axios.get(`${TEGON_HOST}/api/v1/users`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+  ).data;
 
   const issues = (
-    await axios.post(`/api/v1/issue/filter`, {
-      workspaceId: settings.workspaceId,
-      filters: {
-        assignee: {
-          filterType: 'IS',
-          value: integrationAccount.accountId,
+    await axios.post(
+      `${TEGON_HOST}/api/v1/issues/filter`,
+      {
+        workspaceId: settings.workspaceId,
+        filters: {
+          assignee: {
+            filterType: 'IS',
+            value: [integrationAccount.accountId],
+          },
         },
       },
-    })
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    )
   ).data;
 
   // Map issues with actual data from workflowsByTeam and labelsByTeam
@@ -104,6 +121,8 @@ export async function syncInitialTasks(eventBody: any) {
     },
     activity: {
       type: 'tegon_issue',
+      name: issue.title,
+      integrationAccountId: integrationAccount.id,
       eventData: {
         ...issue,
       },

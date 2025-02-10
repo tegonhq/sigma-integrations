@@ -21,23 +21,22 @@ export async function postGoogleCalendarData(url: string, accessToken: string, d
   return response.data;
 }
 
-export async function getAccessToken(integrationAccount: any) {
+export async function getAccessToken(integrationAccount: any, integrationDefinition?: any) {
   // Get the integration configuration as a Record<string, string>
   const config = integrationAccount.integrationConfiguration as Record<string, string>;
-  console.log(config);
+
+  integrationDefinition ??= integrationAccount.integrationDefinition;
 
   // Get the current timestamp
   const currentDate = Date.now();
   // Get the access token expiration timestamp
-  const accessExpiresIn = Number(config.access_expires_in);
-  console.log(accessExpiresIn);
+  const accessExpiresIn = config.access_expires_in ? Number(config.access_expires_in) : undefined;
 
   // If the access token is expired or not set
   if (!accessExpiresIn || currentDate >= accessExpiresIn) {
     // Get the client ID, client secret, and refresh token from the configuration
     const { refresh_token } = config;
-    const { clientId: client_id, clientSecret: client_secret } =
-      integrationAccount.integrationDefinition.config;
+    const { clientId: client_id, clientSecret: client_secret } = integrationDefinition.config;
 
     const url = 'https://oauth2.googleapis.com/token';
 
@@ -73,37 +72,6 @@ export async function getAccessToken(integrationAccount: any) {
   }
 
   return config.access_token;
-}
-
-export async function createTasks(tasks: any) {
-  const batchSize = 10;
-  const results = [];
-  const batches = [];
-
-  // Split tasks into batches first
-  for (let i = 0; i < tasks.length; i += batchSize) {
-    batches.push(tasks.slice(i, i + batchSize));
-  }
-
-  // Process all batches concurrently with Promise.all
-  try {
-    const responses = await Promise.all(
-      batches.map((batch, index) =>
-        axios.post(`${BACKEND_HOST}/tasks/bulk`, batch).catch((error) => {
-          console.error(`Error processing batch ${index + 1}:`, error);
-          return { data: [] }; // Return empty data on error to continue processing
-        }),
-      ),
-    );
-
-    // Combine all results
-    results.push(...responses.flatMap((response) => response.data));
-  } catch (error) {
-    console.error('Fatal error processing batches');
-    // throw error; // Throw fatal errors
-  }
-
-  return results;
 }
 
 export async function getTaskBySource(sourceId: string) {

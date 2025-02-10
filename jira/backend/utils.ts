@@ -22,9 +22,11 @@ export async function postJira(url: string, accessToken: string, body: any) {
   ).data;
 }
 
-export async function getAccessToken(integrationAccount: any) {
+export async function getAccessToken(integrationAccount: any, integrationDefinition?: any) {
   // Get the integration configuration as a Record<string, string>
   const config = integrationAccount.integrationConfiguration as Record<string, string>;
+
+  integrationDefinition ??= integrationAccount.integrationDefinition;
 
   // Get the current timestamp
   const currentDate = Date.now();
@@ -35,8 +37,7 @@ export async function getAccessToken(integrationAccount: any) {
   if (!accessExpiresIn || currentDate >= accessExpiresIn) {
     // Get the client ID, client secret, and refresh token from the configuration
     const { refresh_token } = config;
-    const { clientId: client_id, clientSecret: client_secret } =
-      integrationAccount.integrationDefinition.config;
+    const { clientId: client_id, clientSecret: client_secret } = integrationDefinition.config;
 
     const url = 'https://auth.atlassian.com/oauth/token';
 

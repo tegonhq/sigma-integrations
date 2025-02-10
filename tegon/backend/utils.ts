@@ -6,7 +6,7 @@ export async function getAccessToken(integrationAccount: any) {
   // Get the integration configuration as a Record<string, string>
   const config = integrationAccount.integrationConfiguration as Record<string, string>;
 
-  return config.access_token;
+  return config.api_key;
 }
 
 export function setupAxiosInterceptors(customToken?: string) {
@@ -62,7 +62,7 @@ export async function getTaskBySource(sourceId: string) {
 }
 
 export function getState(stateCategory: string) {
-  if (stateCategory === 'UNSTARTED') {
+  if (stateCategory === 'UNSTARTED' || stateCategory === 'BACKLOG') {
     return 'Todo';
   } else if (stateCategory === 'STARTED') {
     return 'In-Progress';

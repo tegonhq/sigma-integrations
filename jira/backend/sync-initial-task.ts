@@ -1,14 +1,13 @@
-import { createActivities, createTasks, getAccessToken, getState, postJira } from './utils';
+import { createTasks, getAccessToken, getState, postJira } from './utils';
 
 export async function syncInitialTasks(eventBody: any) {
-  const { integrationAccount } = eventBody;
+  const { integrationAccount, integrationDefinition } = eventBody;
 
-  const accessToken = await getAccessToken(integrationAccount);
+  const accessToken = await getAccessToken(integrationAccount, integrationDefinition);
 
   const settings = integrationAccount.settings;
 
   const tasks: any = [];
-  const activities: any = [];
 
   let nextPageToken = null;
   const maxResults = 50;
@@ -47,21 +46,20 @@ export async function syncInitialTasks(eventBody: any) {
         status,
         sourceId,
         integrationAccountId: integrationAccount.id,
-      });
-
-      activities.push({
-        type: 'jira_issue',
-        eventData: {
-          id: issue.id,
-          key: issue.key,
-          url,
-          summary: issue.fields.summary,
-          status: issue.fields.status,
-          description: issue.fields.description,
-          html_url: `${settings.url}/browse/${issue.key}`,
+        activity: {
+          type: 'jira_issue',
+          eventData: {
+            id: issue.id,
+            key: issue.key,
+            url,
+            summary: issue.fields.summary,
+            status: issue.fields.status,
+            description: issue.fields.description,
+            html_url: `${settings.url}/browse/${issue.key}`,
+          },
+          name: title,
+          integrationAccountId: integrationAccount.id,
         },
-        name: title,
-        integrationAccountId: integrationAccount.id,
       });
     });
 
@@ -69,9 +67,6 @@ export async function syncInitialTasks(eventBody: any) {
     hasMorePages = !!nextPageToken;
   }
 
-  if (activities.length > 0) {
-    await createActivities(activities, integrationAccount.workspaceId);
-  }
   if (tasks.length > 0) {
     await createTasks(tasks, integrationAccount.workspaceId);
   }

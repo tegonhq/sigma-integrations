@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import { syncInitialTasks } from './sync-initial-task';
 import { getJiraData, postJira } from './utils';
 
 import { BACKEND_HOST } from '.';
@@ -79,9 +78,6 @@ export async function integrationCreate(
     webhookId: webhookData.webhookRegistrationResult[0].createdWebhookId,
   };
 
-  await syncInitialTasks({ integrationAccount });
-
-  return (
-    await axios.post(`${BACKEND_HOST}/integration_account/${integrationAccount.id}`, { settings })
-  ).data;
+  await axios.post(`${BACKEND_HOST}/integration_account/${integrationAccount.id}`, { settings });
+  return integrationAccount;
 }

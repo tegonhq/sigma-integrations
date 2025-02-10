@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 import { BACKEND_HOST } from './constants';
-import { syncInitialTasks } from './sync-initial-task';
 import { getGoogleCalendarData, postGoogleCalendarData } from './utils';
 
 export async function integrationCreate(userId: string, workspaceId: string, data: any) {
@@ -11,8 +10,6 @@ export async function integrationCreate(userId: string, workspaceId: string, dat
     access_token: oauthResponse.access_token,
     access_expires_in: oauthResponse.expires_at,
   };
-
-  console.log(integrationConfiguration);
 
   // Get user's calendar list to store primary calendar info
   const calendarList = await getGoogleCalendarData(
@@ -52,8 +49,6 @@ export async function integrationCreate(userId: string, workspaceId: string, dat
 
   const integrationAccount = (await axios.post(`${BACKEND_HOST}/integration_account`, payload))
     .data;
-
-  console.log(integrationAccount);
   // Set up webhook notification for the primary calendar
   const webhookData = await postGoogleCalendarData(
     `https://www.googleapis.com/calendar/v3/calendars/${primaryCalendar.id}/events/watch`,
@@ -65,7 +60,6 @@ export async function integrationCreate(userId: string, workspaceId: string, dat
       token: primaryCalendar.id,
     },
   );
-  console.log(webhookData);
 
   settings = {
     ...settings,
@@ -73,11 +67,8 @@ export async function integrationCreate(userId: string, workspaceId: string, dat
     webhookResourceId: webhookData.resourceId,
     webhookExpiration: webhookData.expiration,
   };
-  console.log(settings);
 
-  await syncInitialTasks({ integrationAccount });
+  await axios.post(`${BACKEND_HOST}/integration_account/${integrationAccount.id}`, { settings });
 
-  return (
-    await axios.post(`${BACKEND_HOST}/integration_account/${integrationAccount.id}`, { settings })
-  ).data;
+  return integrationAccount;
 }

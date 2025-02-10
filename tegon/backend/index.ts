@@ -1,3 +1,4 @@
+import { integrationCreate } from './account-create';
 import { syncInitialTasks } from './sync-initial-task';
 import { getAccessToken } from './utils';
 import { handleWebhook } from './webhook';
@@ -35,6 +36,13 @@ export interface IntegrationEventPayload {
 
 export async function run(eventPayload: IntegrationEventPayload) {
   switch (eventPayload.event) {
+    case IntegrationPayloadEventType.CREATE:
+      return await integrationCreate(
+        eventPayload.userId,
+        eventPayload.workspaceId,
+        eventPayload.eventBody,
+      );
+
     case IntegrationPayloadEventType.GET_TOKEN:
       return getAccessToken(eventPayload.eventBody.integrationAccount);
 

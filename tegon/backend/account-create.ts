@@ -1,17 +1,19 @@
 import axios from 'axios';
 
-import { BACKEND_HOST } from './constants';
-import { setupAxiosInterceptors } from './utils';
+import { BACKEND_HOST, TEGON_HOST } from './constants';
 
 export async function integrationCreate(userId: string, workspaceId: string, data: any) {
   const { config, integrationDefinition } = data;
 
-  setupAxiosInterceptors(config.apiKey);
-
-  const tegonUser = (await axios.get('/api/v1/users')).data;
+  const tegonUser = (
+    await axios.get(`${TEGON_HOST}/api/v1/users`, {
+      headers: { Authorization: `Bearer ${config.api_key}` },
+    })
+  ).data;
 
   const settings: Record<string, any> = {
-    workspaces: tegonUser.workspaces,
+    workspaces: tegonUser.workspaces.map(({ id, name, slug }: any) => ({ id, name, slug })),
+    workspaceId: tegonUser.workspaces[0].id,
   };
 
   const payload = {

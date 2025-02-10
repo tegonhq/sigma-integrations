@@ -25,6 +25,7 @@ async function handleIssue(tegonData: any, integrationAccountId: string) {
   const issue = tegonData.issue;
   const task = await getTaskBySource(issue.id);
   let taskData;
+
   if (task) {
     taskData = {
       title: issue.title,
@@ -35,6 +36,8 @@ async function handleIssue(tegonData: any, integrationAccountId: string) {
       },
       activity: {
         type: tegonData.eventType === 'delete' ? 'issue_delete' : 'issue_update',
+        name: issue.title,
+        integrationAccountId,
         eventData: {
           ...tegonData.changedData,
         },
@@ -54,6 +57,8 @@ async function handleIssue(tegonData: any, integrationAccountId: string) {
     },
     activity: {
       type: 'issue_create',
+      name: issue.title,
+      integrationAccountId,
       eventData: {
         ...issue,
       },
@@ -61,9 +66,9 @@ async function handleIssue(tegonData: any, integrationAccountId: string) {
   };
 
   if (task) {
-    return await axios.post(`${BACKEND_HOST}/tasks/${task.id}`, taskData);
+    return (await axios.post(`${BACKEND_HOST}/tasks/${task.id}`, taskData)).data;
   }
-  return await axios.post(`${BACKEND_HOST}/tasks`, taskData);
+  return (await axios.post(`${BACKEND_HOST}/tasks`, taskData)).data;
 }
 
 async function handleIssueComment(tegonData: any, integrationAccountId: string) {
