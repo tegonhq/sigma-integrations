@@ -186,7 +186,7 @@ export async function handleEvent(
     return await updateOrDeleteTask(event, false);
   }
   const taskData = getTaskData(event, integrationAccountId, calendarId, calendarName);
-  return await axios.post(`${BACKEND_HOST}/tasks`, taskData);
+  return await axios.post(`${BACKEND_HOST}/tasks/source`, taskData);
 }
 
 export function getTaskData(

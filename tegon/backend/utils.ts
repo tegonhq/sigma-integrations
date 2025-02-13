@@ -39,7 +39,7 @@ export async function createTasks(tasks: any) {
   try {
     const responses = await Promise.all(
       batches.map((batch, index) =>
-        axios.post(`${BACKEND_HOST}/tasks/bulk`, batch).catch((error) => {
+        axios.post(`${BACKEND_HOST}/tasks/bulk`, { tasks: batch }).catch((error) => {
           console.error(`Error processing batch ${index + 1}:`, error);
           return { data: [] }; // Return empty data on error to continue processing
         }),
