@@ -45,7 +45,7 @@ export async function integrationCreate(
     integrationDefinitionId: integrationDefinition.id,
   };
 
-  const integrationAccount = (await axios.post(`/api/integration_account`, payload)).data;
+  const integrationAccount = (await axios.post(`/api/v1/integration_account`, payload)).data;
 
   await syncInitialTasks({ integrationAccount });
   return integrationAccount;

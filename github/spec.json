@@ -6,18 +6,20 @@
   "schedule": {
     "frequency": "*/5 * * * *"
   },
-  "OAuth2": {
-    "token_url": "https://github.com/login/oauth/access_token",
-    "authorization_url": "https://github.com/login/oauth/authorize",
-    "scopes": [
-      "user",
-      "public_repo",
-      "repo",
-      "notifications",
-      "gist",
-      "read:org",
-      "repo_hooks"
-    ],
-    "scope_separator": ","
+  "auth": {
+    "OAuth2": {
+      "token_url": "https://github.com/login/oauth/access_token",
+      "authorization_url": "https://github.com/login/oauth/authorize",
+      "scopes": [
+        "user",
+        "public_repo",
+        "repo",
+        "notifications",
+        "gist",
+        "read:org",
+        "repo_hooks"
+      ],
+      "scope_separator": ","
+    }
   }
 }

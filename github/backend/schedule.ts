@@ -155,7 +155,7 @@ export async function handleSchedule(eventBody: any) {
       await createTasks(tasks);
     }
 
-    await axios.post(`/api/integration_account/${integrationAccount.id}`, {
+    await axios.post(`/api/v1/integration_account/${integrationAccount.id}`, {
       settings: { ...settings, lastSyncTime: new Date().toISOString() },
     });
   }
