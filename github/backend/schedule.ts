@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-import { BACKEND_HOST } from './constants';
-import { createActivities, createTasks, getGithubData } from './utils';
+import { createTasks, getGithubData } from './utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleSchedule(eventBody: any) {
@@ -50,15 +49,12 @@ export async function handleSchedule(eventBody: any) {
     notificationCount += filteredNotifications?.length || 0;
 
     const tasks: any = [];
-    const activities: any = [];
 
     await Promise.all(
       filteredNotifications.map(async (notification: any) => {
         const { reason, subject } = notification;
 
         let url: string = '';
-        let activityType: string = '';
-        let activityName: string = '';
         let hasTask: boolean = false;
         let sourceId: string = '';
         let status = 'Todo';
@@ -66,20 +62,16 @@ export async function handleSchedule(eventBody: any) {
         let subjectType: string = '';
         let githubData: Record<string, any> = {};
         switch (reason) {
-          case 'mention':
-            url = subject.latest_comment_url;
-            subjectType = subject.type.toLowerCase();
-            activityType = `github_${subjectType}_comment_mention`;
-            activityName = `${subjectType} mention: ${subject.title}`;
-            hasTask = false;
-            githubData = await getGithubData(url, integrationConfiguration.access_token);
-            break;
+          // case 'mention':
+          //   url = subject.latest_comment_url;
+          //   subjectType = subject.type.toLowerCase();
+          //   hasTask = false;
+          //   githubData = await getGithubData(url, integrationConfiguration.access_token);
+          //   break;
 
           case 'assign':
             url = subject.url;
             subjectType = subject.type.toLowerCase();
-            activityType = `github_${subjectType}_assigned`;
-            activityName = `${subjectType} Assign: ${subject.title}`;
             hasTask = true;
             githubData = await getGithubData(url, integrationConfiguration.access_token);
             sourceId = githubData.id.toString();
@@ -90,8 +82,6 @@ export async function handleSchedule(eventBody: any) {
           case 'review_requested':
             url = subject.url;
             subjectType = subject.type.toLowerCase();
-            activityType = `github_${subjectType}_review_requested`;
-            activityName = `${subjectType} Review Requested: ${subject.title}`;
             hasTask = true;
             githubData = await getGithubData(url, integrationConfiguration.access_token);
             sourceId = githubData.id.toString();
@@ -102,8 +92,6 @@ export async function handleSchedule(eventBody: any) {
           case 'state_change':
             url = subject.url;
             subjectType = subject.type.toLowerCase();
-            activityType = `github_${subjectType}_state_change`;
-            activityName = `${subjectType} State Changed: ${subject.title}`;
             hasTask = true;
             githubData = await getGithubData(url, integrationConfiguration.access_token);
             sourceId = githubData.id.toString();
@@ -121,8 +109,6 @@ export async function handleSchedule(eventBody: any) {
           case 'subscribed':
             url = subject.url;
             subjectType = subject.type.toLowerCase();
-            activityType = `github_${subjectType}`;
-            activityName = `${subjectType}: ${subject.title}`;
             hasTask = true;
             githubData = await getGithubData(url, integrationConfiguration.access_token);
             sourceId = githubData.id.toString();
@@ -140,8 +126,6 @@ export async function handleSchedule(eventBody: any) {
           case 'author':
             url = subject.url;
             subjectType = subject.type.toLowerCase();
-            activityType = `github_${subjectType}`;
-            activityName = `${subjectType}: ${subject.title}`;
             hasTask = true;
             githubData = await getGithubData(url, integrationConfiguration.access_token);
             sourceId = githubData.id.toString();
@@ -163,24 +147,15 @@ export async function handleSchedule(eventBody: any) {
               integrationAccountId: integrationAccount.id,
             });
           }
-          activities.push({
-            type: activityType,
-            eventData: notification,
-            name: activityName,
-            integrationAccountId: integrationAccount.id,
-          });
         }
       }),
     );
 
-    if (activities.length > 0) {
-      await createActivities(activities, integrationAccount.workspaceId);
-    }
     if (tasks.length > 0) {
-      await createTasks(tasks, integrationAccount.workspaceId);
+      await createTasks(tasks);
     }
 
-    await axios.post(`${BACKEND_HOST}/integration_account/${integrationAccount.id}`, {
+    await axios.post(`/api/integration_account/${integrationAccount.id}`, {
       settings: { ...settings, lastSyncTime: new Date().toISOString() },
     });
   }

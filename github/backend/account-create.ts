@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import { BACKEND_HOST } from './constants';
 import { syncInitialTasks } from './sync-initial-task';
 import { getGithubData } from './utils';
 
@@ -46,8 +45,7 @@ export async function integrationCreate(
     integrationDefinitionId: integrationDefinition.id,
   };
 
-  const integrationAccount = (await axios.post(`${BACKEND_HOST}/integration_account`, payload))
-    .data;
+  const integrationAccount = (await axios.post(`/api/integration_account`, payload)).data;
 
   await syncInitialTasks({ integrationAccount });
   return integrationAccount;

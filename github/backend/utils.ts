@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-import { BACKEND_HOST } from './constants';
-
-export async function createTasks(tasks: any, workspaceId: string) {
+export async function createTasks(tasks: any) {
   const batchSize = 10;
   const results = [];
   const batches = [];
@@ -16,12 +14,10 @@ export async function createTasks(tasks: any, workspaceId: string) {
   try {
     const responses = await Promise.all(
       batches.map((batch, index) =>
-        axios
-          .post(`${BACKEND_HOST}/tasks/bulk?workspaceId=${workspaceId}`, batch)
-          .catch((error) => {
-            console.error(`Error processing batch ${index + 1}:`, error);
-            return { data: [] }; // Return empty data on error to continue processing
-          }),
+        axios.post(`/api/tasks/bulk`, batch).catch((error) => {
+          console.error(`Error processing batch ${index + 1}:`, error);
+          return { data: [] }; // Return empty data on error to continue processing
+        }),
       ),
     );
 

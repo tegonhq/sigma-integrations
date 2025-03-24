@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import { BACKEND_HOST } from './constants';
 import { createTasks, getGithubData } from './utils';
 
 export async function syncInitialTasks(eventBody: any) {
@@ -34,49 +33,15 @@ export async function syncInitialTasks(eventBody: any) {
 
         data.items.map((item: any) => {
           const url = item.url;
-          const subject = {
-            type: item.node_id.includes('PR') ? 'issue' : 'pullrequest',
-          };
-          const subjectType = subject.type.toLowerCase();
-          const activityType = `github_${subjectType}`;
-          const activityName = `${subjectType}: ${item.title}`;
           const sourceId = item.id.toString();
           const status = item.state === 'open' ? 'Todo' : 'Done';
-          const title = `#${item.number} - ${item.title}`;
+          const title = item.title;
 
           tasks.push({
-            url,
             title,
             status,
-            sourceId,
+            source: { type: 'external', extension: 'Github', id: sourceId, url },
             integrationAccountId: integrationAccount.id,
-            metadata: {
-              type: 'NORMAL',
-              state: item.state,
-              number: item.number,
-              htmlUrl: item.html_url,
-              commentUrl: item.comment_url,
-              repository: item.repository_url,
-              assignees: item.assignees,
-              labels: item.labels,
-              createdAt: item.created_at,
-              updatedAt: item.updated_at,
-              closedAt: item.closed_at,
-            },
-            activity: {
-              type: activityType,
-              eventData: {
-                id: item.id,
-                url: item.url,
-                comment_url: item.comment_url,
-                html_url: item.html_url,
-                number: item.number,
-                title: item.title,
-                state: item.state,
-              },
-              name: activityName,
-              integrationAccountId: integrationAccount.id,
-            },
           });
 
           return true;
@@ -87,10 +52,10 @@ export async function syncInitialTasks(eventBody: any) {
   );
 
   if (tasks.length > 0) {
-    await createTasks(tasks, integrationAccount.workspaceId);
+    await createTasks(tasks);
   }
 
-  await axios.post(`${BACKEND_HOST}/integration_account/${integrationAccount.id}`, {
+  await axios.post(`/api/integration_account/${integrationAccount.id}`, {
     settings: { ...settings, lastSyncTime: new Date().toISOString() },
   });
 }
