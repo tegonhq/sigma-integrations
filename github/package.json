@@ -1,6 +1,6 @@
 {
   "name": "@sigma/github",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "github extension for Sigma",
   "files": [
     "github"
@@ -68,7 +68,7 @@
     ]
   },
   "dependencies": {
-    "@tegonhq/sigma-sdk": "0.1.9",
+    "@tegonhq/sigma-sdk": "0.1.13",
     "axios": "^1.7.9",
     "react-query": "^3.39.3"
   }

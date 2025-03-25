@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@tegonhq/sigma-sdk':
-        specifier: 0.1.9
-        version: 0.1.9
+        specifier: 0.1.13
+        version: 0.1.13
       '@tegonhq/ui':
         specifier: ^0.2.21
         version: 0.2.21(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(@tiptap/extension-code-block@2.10.3(@tiptap/core@2.10.3(@tiptap/pm@2.10.3))(@tiptap/pm@2.10.3))(@types/react-dom@18.3.3(@types/react@18.3.14))(@types/react@18.3.14)(highlight.js@11.10.0)(javascript-time-ago@2.5.11)(lowlight@3.2.0)(react-dom@18.3.1(react@18.3.1))(react-hook-form@7.49.3(react@18.3.1))(react@18.3.1)(sswr@2.1.0(svelte@5.11.2))(svelte@5.11.2)(vue@3.5.13(typescript@4.9.5))(zod@3.24.1)
@@ -2370,8 +2370,8 @@ packages:
     resolution: {integrity: sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==}
     engines: {node: '>=12'}
 
-  '@tegonhq/sigma-sdk@0.1.9':
-    resolution: {integrity: sha512-ggtajbXJrxXjJ2XA51DWtCKJoSugA1Q74Ba5ICk7/tax+uctwrvW1uqgC0rWpsGsLigcsfi0uqL3b/eFPublpw==}
+  '@tegonhq/sigma-sdk@0.1.13':
+    resolution: {integrity: sha512-H1UYT6acj3GfBDn/qNRcsjXzI0g2WNrBclDXScvH+uYSi7YRMir+BMYq1/MM+b0ERp/kWkms//PfevSGv83AyQ==}
     engines: {node: '>=18.0.0'}
 
   '@tegonhq/ui@0.2.21':
@@ -9588,7 +9588,7 @@ snapshots:
 
   '@tanstack/table-core@8.20.5': {}
 
-  '@tegonhq/sigma-sdk@0.1.9': {}
+  '@tegonhq/sigma-sdk@0.1.13': {}
 
   '@tegonhq/ui@0.2.21(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(@tiptap/extension-code-block@2.10.3(@tiptap/core@2.10.3(@tiptap/pm@2.10.3))(@tiptap/pm@2.10.3))(@types/react-dom@18.3.3(@types/react@18.3.14))(@types/react@18.3.14)(highlight.js@11.10.0)(javascript-time-ago@2.5.11)(lowlight@3.2.0)(react-dom@18.3.1(react@18.3.1))(react-hook-form@7.49.3(react@18.3.1))(react@18.3.1)(sswr@2.1.0(svelte@5.11.2))(svelte@5.11.2)(vue@3.5.13(typescript@4.9.5))(zod@3.24.1)':
     dependencies:
