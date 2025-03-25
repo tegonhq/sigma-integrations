@@ -16,6 +16,7 @@ import {
   PRDraftIcon,
   PRMergedIcon,
 } from '../icons';
+
 enum VIEW_TYPE {
   SINGLE_TASK = 'SINGLE_TASK',
   TASK_ITEM = 'TASK_ITEM',

@@ -21,7 +21,7 @@ export async function syncInitialTasks(eventBody: any) {
       let hasMorePages = true;
       while (hasMorePages) {
         const data = await getGithubData(
-          `https://api.github.com/search/issues?page=${page}&per_page=50&q=${query}`,
+          `https://api.github.com/search/issues?page=${page}&per_page=50&q=${query}+created:>=${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`,
           integrationConfiguration.access_token,
         );
 
@@ -55,7 +55,7 @@ export async function syncInitialTasks(eventBody: any) {
     await createTasks(tasks);
   }
 
-  await axios.post(`/api/v1/integration_account/${integrationAccount.id}`, {
+  await axios.post(`/api/integration_account/${integrationAccount.id}`, {
     settings: { ...settings, lastSyncTime: new Date().toISOString() },
   });
 }

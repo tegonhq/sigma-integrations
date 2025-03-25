@@ -1,6 +1,6 @@
 {
   "name": "@sigma/github",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "github extension for Sigma",
   "files": [
     "github"

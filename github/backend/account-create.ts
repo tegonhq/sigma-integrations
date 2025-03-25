@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import { syncInitialTasks } from './sync-initial-task';
 import { getGithubData } from './utils';
 
 export async function integrationCreate(
@@ -34,8 +33,9 @@ export async function integrationCreate(
   const payload = {
     settings: {
       login: user.login,
-      scheduled: true,
-      schedule_frequency: '*/5 * * * *',
+      schedule: {
+        frequency: '*/5 * * * *',
+      },
       repositories,
     },
     userId,
@@ -47,6 +47,5 @@ export async function integrationCreate(
 
   const integrationAccount = (await axios.post(`/api/v1/integration_account`, payload)).data;
 
-  await syncInitialTasks({ integrationAccount });
   return integrationAccount;
 }
