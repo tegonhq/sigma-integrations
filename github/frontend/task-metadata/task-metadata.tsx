@@ -1,13 +1,14 @@
 import {
   IntegrationAccount,
-  IntegrationAccountWithToken,
   IntegrationDefinition,
   TaskIntegrationViewType,
   Task,
+  TaskExternalLink,
+  IntegrationAccountWithToken,
 } from '@tegonhq/sigma-sdk';
 import { Badge, cn } from '@tegonhq/ui';
 import React from 'react';
-import { parseGitHubIssueData, useGithubIssueDataQuery } from 'utils';
+import { parseGitHubIssueData, useGetIntegrationAccount, useGithubIssueDataQuery } from 'utils';
 
 import {
   IssueOpenIcon,
@@ -21,16 +22,19 @@ import {
 interface TaskMetadataProps {
   task: Task;
   integrationAccount: IntegrationAccount;
+  integrationDefinition: IntegrationDefinition;
+  taskExternalLink: TaskExternalLink;
   view: TaskIntegrationViewType;
 }
 
-export const TaskMetadata = ({ view, integrationAccount }: TaskMetadataProps) => {
-  const integrationDefinitionURL = (
-    integrationAccount.integrationDefinition as IntegrationDefinition
-  )?.url;
+export const TaskMetadata = ({ view, taskExternalLink }: TaskMetadataProps) => {
+  const githubURL = taskExternalLink?.url;
+  const { data: integrationAccount, isLoading } = useGetIntegrationAccount(
+    taskExternalLink.integrationAccountId as string,
+  );
 
   const { data: issueData, refetch } = useGithubIssueDataQuery(
-    integrationDefinitionURL as string,
+    githubURL,
     (integrationAccount as IntegrationAccountWithToken)?.token,
   );
   const size = TaskIntegrationViewType.TASK_LIST_ITEM ? 12 : 16;
@@ -65,6 +69,10 @@ export const TaskMetadata = ({ view, integrationAccount }: TaskMetadataProps) =>
       default:
         return <PROpenIcon size={size} />;
     }
+  }
+
+  if (isLoading) {
+    return null;
   }
 
   return (
